@@ -2,6 +2,7 @@
 
 from runner import Runner
 from learner import Learner
+from scipy.io.arff import loadarff
 
 from utils import subData
 

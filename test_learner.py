@@ -4,7 +4,7 @@ import pytest
 from pandas import DataFrame, Series
 from scipy.io.arff import loadarff
 
-from learner import Learner
+from learner import DefaultLearner as Learner
 
 @pytest.fixture()
 def ex1():
@@ -17,9 +17,9 @@ def simple(ex1):
     return Learner(ex1[1])
 
 def test_learner(ex1, simple):
-    assert not simple.train(None, 'hat')
-    assert not simple.train(None, 'coat')
-    assert not simple.train(None, 'jacket')
+    assert simple.train(None, 'hat')
+    assert simple.train(None, 'coat')
+    assert simple.train(None, 'jacket')
     simple.train(None, 'coat')
     assert simple.classify(None) == 'coat'
 

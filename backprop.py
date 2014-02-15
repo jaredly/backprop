@@ -1,59 +1,41 @@
 #!/usr/bin/env python
 
 from learner import Learner
-from numpy import e, array, zeros
+from net import Net
 import numpy as n
 
+LOG = False
 
-def f(net):
-    return 1/(1 + e^(-net))
+class BackProp(Learner):
+    def __init__(self, meta, layers=[], rate=.05, target=None):
+        Learner.__init__(self, meta, target)
 
-def fprime(net):
-    z = f(net)
-    return z * (1 - z)
-
-# def deltaw(netz
-
-class Net:
-    def __init__(self, layers):
-        self.weights = []
-        for prev, next in zip(layers[:-1], layers[1:]):
-            self.weights.push(n.random.rand(prev + 1, next))
-
-    def forward(self, input):
-        inputs = [input + [1]]
-        outputs = []
-        out = input
-        for level in self.weights:
-            input = n.concatenate((input, (1,)))
-            weighted = input * level
-            out = f(weighted)
-            outputs.push(out)
-            k
-
-            
-
-            
-            
-
-        
-
-class BackProp:
-    def __init__(self, meta, layers, target=None):
-        Target.__init__(self, meta, target)
+        inputs = len(self.meta.names()) - 1
+        _, possible = self.meta[self.target]
+        self.outputs = possible
+        self.net = Net([inputs] + layers + [len(possible)], rate=rate)
 
     def state(self):
-        return self.weights.copy()
+        return [x.copy() for x in self.net.weights]
 
-    def train(self, data):
-        target
+    def use_best(self):
+        self.net.weights = self.best_state
 
-    def epoch(self, data):
-        '''returns accuracy'''
-        for i in data.index:
-            results.append(self.train(
+    def classify(self, data):
+        output = self.net.classify(data)
+        return self.outputs[output.argmax()]
 
-
-
+    def train(self, data, target):
+        output = n.zeros(len(self.outputs))
+        output[self.outputs.index(target)] = 1
+        if LOG:
+            print 'training'
+            print 'data', data
+            print 'expected', output
+            print 'weights'
+            for level in self.net.weights:
+                print '  ', level
+        err = self.net.train(data, output)
+        return err / 2
 
 # vim: et sw=4 sts=4

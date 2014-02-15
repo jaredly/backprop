@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 from utils import normalizers, denormalize, normalize
+import numpy as np
 
 class Runner:
-    def __init__(self, learner, meta, target=None, stop_after=20):
+    def __init__(self, learner, meta, target=None, stop_after=20, max_iters=1000):
         if target is None:
             target = meta.names()[-1]
-        self.max_iters = 1000
+        self.max_iters = max_iters
         self.stop_after = stop_after
         self.target = target
-        self.best = 0
-        self.best_state = None
         self.norm = None
         self.meta = meta
         self.learner = learner
@@ -19,13 +18,16 @@ class Runner:
         '''data is already normalized'''
         history = []
         bests = [0]
+        incols = list(data.columns)
+        incols.remove(self.target)
         for i in xrange(self.max_iters):
+            print '.',
             # shuffle data
             ix = np.array(data.index)
             np.random.shuffle(ix)
             data = data.reindex(ix)
             # train learner
-            history.append(self.learner.epoch(data))
+            history.append(self.learner.epoch(data[incols], data[[self.target]]))
             if self.learner.best == 1:
                 print 'Fully trained'
                 return history
@@ -36,6 +38,7 @@ class Runner:
                     # revert to the best weights
                     self.learner.use_best()
                     return history
+        return history
 
     def run(self, raw, split=None):
         self.norm = normalizers(raw, self.meta)
@@ -62,7 +65,7 @@ class Runner:
         for i in norm.index:
             cln = self.learner.classify(norm.loc[i][:-1])
             # print most
-            if cln != norm.loc[i][self.find]:
+            if cln != norm.loc[i][self.target]:
                 # print 'Wrong!'
                 wrong += 1
         return wrong/total, wrong
@@ -70,6 +73,7 @@ class Runner:
 
 
 
+"""
 class Main(BaseRunner)::
     '''Perceptron tester
 
@@ -166,6 +170,7 @@ class Main(BaseRunner)::
         history = self.trainUp(data.loc[data.index[:stop]])
         result = self.validate(data.loc[data.index[stop:]])
         return history, result
+"""
 
 
 # vim: et sw=4 sts=4
