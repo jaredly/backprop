@@ -14,6 +14,9 @@ class Runner:
         self.meta = meta
         self.learner = learner
 
+        self.best = None
+        self.best_state = None
+
     def train(self, data):
         '''data is already normalized'''
         history = []
@@ -27,16 +30,22 @@ class Runner:
             np.random.shuffle(ix)
             data = data.reindex(ix)
             # train learner
-            history.append(self.learner.epoch(data[incols], data[[self.target]]))
-            if self.learner.best == 1:
+            error, weights = self.learner.epoch(data[incols], data[[self.target]])
+            # update best
+            history.append([error, weights])
+            if self.best is None or error < self.best:
+                self.best = error
+                self.best_state = weights
+            if self.best == 0:
                 print 'Fully trained'
                 return history
-            bests.append(self.learner.best)
+            bests.append(self.best)
+            # check for stopping
             if len(bests) > self.stop_after:
-                if bests.pop(0) == self.learner.best:
+                if bests.pop(0) == self.best:
                     print 'Done classifying; no progress in past 20 epochs'
                     # revert to the best weights
-                    self.learner.use_best()
+                    self.learner.use_state(self.best_state)
                     return history
         return history
 

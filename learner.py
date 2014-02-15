@@ -9,8 +9,6 @@ class Learner:
     def __init__(self, meta, target=None):
         if target is None:
             target = meta.names()[-1]
-        self.best = None
-        self.best_state = None
         self.target = target
         self.meta = meta
 
@@ -46,9 +44,6 @@ class Learner:
             results.append(self.train(data.loc[i], targets.loc[i]))
         error = sum(results)/float(len(results))
         weights = self.state()
-        if self.best is None or error < self.best:
-            self.best = error
-            self.best_state = weights
         return error, weights
 
 class DefaultLearner(Learner):

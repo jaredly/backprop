@@ -7,19 +7,19 @@ import numpy as n
 LOG = False
 
 class BackProp(Learner):
-    def __init__(self, meta, layers=[], rate=.05, target=None):
+    def __init__(self, meta, layers=[], rate=.05, target=None, wrange=100):
         Learner.__init__(self, meta, target)
 
         inputs = len(self.meta.names()) - 1
         _, possible = self.meta[self.target]
         self.outputs = possible
-        self.net = Net([inputs] + layers + [len(possible)], rate=rate)
+        self.net = Net([inputs] + layers + [len(possible)], rate=rate, wrange=wrange)
 
     def state(self):
         return [x.copy() for x in self.net.weights]
 
-    def use_best(self):
-        self.net.weights = self.best_state
+    def use_state(self, state):
+        self.net.weights = state
 
     def classify(self, data):
         output = self.net.classify(data)
