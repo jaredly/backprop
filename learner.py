@@ -13,12 +13,12 @@ class Learner:
         self.meta = meta
 
     @classmethod
-    def fromArff(cls, fname, **args):
+    def fromArff(cls, fname, stop_after=100, max_iters=1000, **args):
         data, meta = loadarff(fname)
         data = DataFrame(data)
         t = meta.names()[-1]
         l = cls(meta, target=t, **args)
-        return Runner(l, meta, t), data
+        return Runner(l, meta, t, stop_after=stop_after, max_iters=max_iters), data
 
     # OVERRIDE THESE
     def state(self):

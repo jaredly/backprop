@@ -16,10 +16,23 @@ def fp(outs):
 
 # def deltaw(netz
 
+def rel(prev, rel):
+    if type(prev) is not int:
+        raise Exception("Can't start a layers decl with a relative number")
+    if rel[0] == '+':
+        return prev + int(rel[1:])
+    if rel[0] == '*':
+        return prev * int(rel[1:])
+    raise Exception("Unrecorgnized relative:" + rel)
+
 class Net:
     def __init__(self, layers, rate=.05, weights=None, wrange=100):
         self.rate = rate
         self.weights = []
+        for i in range(len(layers)):
+            if type(layers[i]) == str:
+                prev = layers[i-1]
+                layers[i] = rel(prev, layers[i])
         for prev, next in zip(layers[:-1], layers[1:]):
             if weights is not None:
                 level = n.zeros((next, prev+1))
@@ -46,7 +59,8 @@ class Net:
         return (err**2).sum()
 
     def classify(self, input):
-        return self.forward(input)[-1]
+        outputs = self.forward(input)
+        return outputs
 
     def forward(self, input):
         '''Calculate outputs forward'''

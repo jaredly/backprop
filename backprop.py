@@ -23,7 +23,10 @@ class BackProp(Learner):
 
     def classify(self, data):
         output = self.net.classify(data)
-        return self.outputs[output.argmax()]
+        # print 'result'
+        # print output
+        # print 'result', output, self.outputs
+        return self.outputs[output[-1].argmax()]
 
     def train(self, data, target):
         output = n.zeros(len(self.outputs))
