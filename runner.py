@@ -27,7 +27,7 @@ class Runner:
         if validate:
             ln = len(data.index)
             vl = int(ln*validate)
-            print 'Using', vl, 'for training', ln-vl, 'for validation'
+            print 'Using', ln-vl, 'for training', vl, 'for validation'
             validation = data.loc[data.index[:vl]]
             data = data.loc[data.index[vl:]]
             # print 'Validation'
@@ -43,13 +43,14 @@ class Runner:
             # train learner
             error, weights = self.learner.epoch(data[incols], data[[self.target]])
             val = 0
+            verr = 0
             if validation:
-                val, wrong = self.validate(validation)
+                val, verr, wrong = self.validate(validation)
                 # print 'val, wrong', val, wrong
             # update best
-            history.append([error, val, weights])
+            history.append([error, val, verr, weights])
             if validation:
-                error = val
+                error = verr
             if self.best is None or error < self.best:
                 self.best = error
                 self.best_state = weights
@@ -89,15 +90,18 @@ class Runner:
         '''norm is already normalized. Returns % wrong'''
         total = len(norm.index)
         wrong = 0.0
+        terr = 0
         for i in norm.index:
             line = norm.loc[i][:-1]
             # print line
-            cln = self.learner.classify(line)
+            real = norm.loc[i][self.target]
+            cln, err = self.learner.validate(line, real)
+            terr += err
             # print cln
-            if cln != norm.loc[i][self.target]:
+            if cln != real:
                 # print 'Wrong!', cln, norm.loc[i][self.target]
                 wrong += 1
-        return wrong/total, wrong
+        return wrong/total, terr / total, wrong
 
 
 

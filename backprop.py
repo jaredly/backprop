@@ -7,13 +7,13 @@ import numpy as n
 LOG = False
 
 class BackProp(Learner):
-    def __init__(self, meta, layers=[], rate=.05, target=None, wrange=100):
+    def __init__(self, meta, layers=[], rate=.05, target=None, momentum=None, wrange=100):
         Learner.__init__(self, meta, target)
 
         inputs = len(self.meta.names()) - 1
         _, possible = self.meta[self.target]
         self.outputs = possible
-        self.net = Net([inputs] + layers + [len(possible)], rate=rate, wrange=wrange)
+        self.net = Net([inputs] + layers + [len(possible)], rate=rate, momentum=momentum, wrange=wrange)
 
     def state(self):
         return [x.copy() for x in self.net.weights]
@@ -28,6 +28,14 @@ class BackProp(Learner):
         # print 'result', output, self.outputs
         return self.outputs[output[-1].argmax()]
 
+    def validate(self, data, real):
+        output = self.net.classify(data)[-1]
+        label = self.outputs[output.argmax()]
+        target = n.zeros(len(self.outputs))
+        target[self.outputs.index(real)] = 1
+        squerr = (target - output)**2
+        return label, squerr.mean()
+
     def train(self, data, target):
         output = n.zeros(len(self.outputs))
         output[self.outputs.index(target)] = 1
@@ -39,6 +47,6 @@ class BackProp(Learner):
             for level in self.net.weights:
                 print '  ', level
         err = self.net.train(data, output)
-        return err / 2
+        return err
 
 # vim: et sw=4 sts=4

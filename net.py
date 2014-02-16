@@ -26,9 +26,11 @@ def rel(prev, rel):
     raise Exception("Unrecorgnized relative:" + rel)
 
 class Net:
-    def __init__(self, layers, rate=.05, weights=None, wrange=100):
+    def __init__(self, layers, rate=.05, weights=None, momentum=0, wrange=100):
         self.rate = rate
+        self.momentum = momentum
         self.weights = []
+        self.lastups = None
         for i in range(len(layers)):
             if type(layers[i]) == str:
                 prev = layers[i-1]
@@ -56,7 +58,7 @@ class Net:
             print 'Weights'
             for level in self.weights:
                 print '  ', level
-        return (err**2).sum()
+        return (err**2).mean()
 
     def classify(self, input):
         outputs = self.forward(input)
@@ -89,6 +91,7 @@ class Net:
         if log:
             print 'Last weights diff', diff
         self.weights[-1] += diff
+        diffs = {}
         for i in range(len(self.weights)-2, -1, -1):
             j = i + 1
             if log:
@@ -106,9 +109,13 @@ class Net:
                 print '  And outputs:', outputs[i]
                 print '  Onto weights:', self.weights[i]
             diff = self.weights[i] * outputs[i] * delta.reshape(delta.shape + (1,))
+            if self.momentum and self.lastups:
+                diff += self.momentum * self.lastups[i]
+            diffs[i] = diff
             if log:
                 print '  Diff:', diff
             self.weights[i] += diff
+        self.lastups = diff
 
 
 # vim: et sw=4 sts=4
