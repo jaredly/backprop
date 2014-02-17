@@ -5,6 +5,8 @@ from pandas import DataFrame, Series
 from scipy.io.arff import loadarff
 from runner import Runner
 
+from utils import remove_keys
+
 class Learner:
     def __init__(self, meta, target=None):
         if target is None:
@@ -13,9 +15,11 @@ class Learner:
         self.meta = meta
 
     @classmethod
-    def fromArff(cls, fname, stop_after=100, max_iters=1000, **args):
+    def fromArff(cls, fname, ignore=[], stop_after=100, max_iters=1000, **args):
         data, meta = loadarff(fname)
         data = DataFrame(data)
+        if ignore:
+            data, meta = remove_keys(data, meta, ignore)
         t = meta.names()[-1]
         l = cls(meta, target=t, **args)
         return Runner(l, meta, t, stop_after=stop_after, max_iters=max_iters), data

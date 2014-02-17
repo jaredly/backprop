@@ -1,5 +1,30 @@
 #!/usr/bin/env python
 
+class MyMeta:
+    def __init__(self, names, types, lookup):
+        self._names = names
+        self._lookup = lookup
+        self._types = types
+
+    def __getitem__(self, what):
+        return self._lookup[what]
+
+    def names(self):
+        return self._names[:]
+
+    def types(self):
+        return self._types[:]
+
+def remove_keys(data, meta, remove):
+    names = meta.names()
+    cols = list(data.columns)
+    for name in remove:
+        names.remove(name)
+        cols.remove(name)
+    lookup = dict((name, meta[name]) for name in names)
+    types = [meta[name][0] for name in names]
+    return data[cols], MyMeta(names, types, lookup)
+
 def normalizers(data, meta):
     '''Colibrate normalizers for a data set'''
     ranges = {}
