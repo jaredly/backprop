@@ -38,6 +38,7 @@ class BackProp(Learner):
 
     def train(self, data, target):
         output = n.zeros(len(self.outputs))
+        # print self.outputs, target
         output[self.outputs.index(target)] = 1
         if LOG:
             print 'training'

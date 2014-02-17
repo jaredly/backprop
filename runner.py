@@ -44,12 +44,12 @@ class Runner:
             error, weights = self.learner.epoch(data[incols], data[[self.target]])
             val = 0
             verr = 0
-            if validation:
+            if validation is not None:
                 val, verr, wrong = self.validate(validation)
                 # print 'val, wrong', val, wrong
             # update best
             history.append([error, val, verr, weights])
-            if validation:
+            if validation is not None:
                 error = verr
             if self.best is None or error < self.best:
                 self.best = error

@@ -15,14 +15,15 @@ class Learner:
         self.meta = meta
 
     @classmethod
-    def fromArff(cls, fname, ignore=[], stop_after=100, max_iters=1000, **args):
+    def fromArff(cls, fname, ignore=[], target=None, stop_after=100, max_iters=1000, **args):
         data, meta = loadarff(fname)
         data = DataFrame(data)
         if ignore:
             data, meta = remove_keys(data, meta, ignore)
-        t = meta.names()[-1]
-        l = cls(meta, target=t, **args)
-        return Runner(l, meta, t, stop_after=stop_after, max_iters=max_iters), data
+        if target is None:
+            target = meta.names()[-1]
+        l = cls(meta, target=target, **args)
+        return Runner(l, meta, target, stop_after=stop_after, max_iters=max_iters), data
 
     # OVERRIDE THESE
     def state(self):
@@ -44,8 +45,10 @@ class Learner:
     def epoch(self, data, targets):
         '''run an epoch on the data. Calleds "train(line)"'''
         results = []
+        # print data
+        # print targets
         for i in data.index:
-            results.append(self.train(data.loc[i], targets.loc[i]))
+            results.append(self.train(data.loc[i], targets.loc[i][self.target]))
         error = sum(results)/float(len(results))
         weights = self.state()
         return error, weights
