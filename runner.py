@@ -65,6 +65,7 @@ class Runner:
                     # revert to the best weights
                     self.learner.use_state(self.best_state)
                     return history
+        self.learner.use_state(self.best_state)
         print 'Reached max', self.max_iters
         return history
 

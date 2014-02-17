@@ -109,13 +109,13 @@ class Net:
                 print '  And outputs:', outputs[i]
                 print '  Onto weights:', self.weights[i]
             diff = self.weights[i] * outputs[i] * delta.reshape(delta.shape + (1,))
-            if self.momentum and self.lastups:
+            if self.momentum and self.lastups is not None:
                 diff += self.momentum * self.lastups[i]
             diffs[i] = diff
             if log:
                 print '  Diff:', diff
             self.weights[i] += diff
-        self.lastups = diff
+        self.lastups = diffs
 
 
 # vim: et sw=4 sts=4
