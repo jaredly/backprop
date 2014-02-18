@@ -5,6 +5,7 @@ import numpy as n
 log = False
 
 def f(net):
+    '''the sigmoid transformation'''
     return 1/(1 + e**(-net))
 
 def light(net):
@@ -12,6 +13,10 @@ def light(net):
 
 def heavy(net):
     return 1/(1 + e**(-net * 2))
+
+# def squashed(net):
+    # '''a more squashed sigmoid'''
+    # return (1 - e**(-net))/(1 + e**(-net))
 
 def fp(outs):
     return outs * (1 - outs)
@@ -30,6 +35,7 @@ def rel(prev, rel):
 class Net:
     def __init__(self, layers, rate=.05, weights=None, momentum=0, wrange=100, trans=None):
         self.rate = rate
+        self.trans = trans
         self.momentum = momentum
         self.trans = trans if trans else f
         self.weights = []
