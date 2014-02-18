@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import numpy as np
+
 class MyMeta:
     def __init__(self, names, types, lookup):
         self._names = names

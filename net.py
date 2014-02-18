@@ -1,15 +1,24 @@
 #!/usr/bin/env python
-from numpy import e, array, zeros
+from numpy import e, array, zeros, tanh
 import numpy as n
 
 log = False
 
 def f(net):
+    '''the sigmoid transformation'''
     return 1/(1 + e**(-net))
 
-def fprime(net):
-    z = f(net)
-    return z * (1 - z)
+def fh(net):
+    '''hyperbolic tangent transformation'''
+    return tanh(net)
+
+def heavy(net):
+    '''a more steppy sigmoid'''
+    return 1/(1 + e**(-net * 2))
+
+# def squashed(net):
+    # '''a more squashed sigmoid'''
+    # return (1 - e**(-net))/(1 + e**(-net))
 
 def fp(outs):
     return outs * (1 - outs)
@@ -26,8 +35,9 @@ def rel(prev, rel):
     raise Exception("Unrecorgnized relative:" + rel)
 
 class Net:
-    def __init__(self, layers, rate=.05, weights=None, momentum=0, wrange=100):
+    def __init__(self, layers, rate=.05, weights=None, momentum=0, wrange=100, trans=f):
         self.rate = rate
+        self.trans = trans
         self.momentum = momentum
         self.weights = []
         self.lastups = None
@@ -77,7 +87,7 @@ class Net:
                 print bout, bout.shape
             inp = level.dot(bout)
             # out has the sigmoid applied
-            out = f(inp)
+            out = self.trans(inp)
         outputs.append(out)
         return outputs
 
