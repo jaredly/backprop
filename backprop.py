@@ -7,13 +7,13 @@ import numpy as n
 LOG = False
 
 class BackProp(Learner):
-    def __init__(self, meta, layers=[], rate=.05, target=None, momentum=None, wrange=100):
+    def __init__(self, meta, layers=[], rate=.05, target=None, momentum=None, trans=None, wrange=100):
         Learner.__init__(self, meta, target)
 
         inputs = len(self.meta.names()) - 1
         _, possible = self.meta[self.target]
         self.outputs = possible
-        self.net = Net([inputs] + layers + [len(possible)], rate=rate, momentum=momentum, wrange=wrange)
+        self.net = Net([inputs] + layers + [len(possible)], rate=rate, momentum=momentum, wrange=wrange, trans=trans)
 
     def state(self):
         return [x.copy() for x in self.net.weights]

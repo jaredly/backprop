@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from numpy import e, array, zeros
+from numpy import e, array, zeros, tanh
 import numpy as n
 
 log = False
@@ -7,9 +7,11 @@ log = False
 def f(net):
     return 1/(1 + e**(-net))
 
-def fprime(net):
-    z = f(net)
-    return z * (1 - z)
+def light(net):
+    return 1/(1 + e**(-net * .5))
+
+def heavy(net):
+    return 1/(1 + e**(-net * 2))
 
 def fp(outs):
     return outs * (1 - outs)
@@ -26,9 +28,10 @@ def rel(prev, rel):
     raise Exception("Unrecorgnized relative:" + rel)
 
 class Net:
-    def __init__(self, layers, rate=.05, weights=None, momentum=0, wrange=100):
+    def __init__(self, layers, rate=.05, weights=None, momentum=0, wrange=100, trans=None):
         self.rate = rate
         self.momentum = momentum
+        self.trans = trans if trans else f
         self.weights = []
         self.lastups = None
         for i in range(len(layers)):
@@ -77,7 +80,7 @@ class Net:
                 print bout, bout.shape
             inp = level.dot(bout)
             # out has the sigmoid applied
-            out = f(inp)
+            out = self.trans(inp)
         outputs.append(out)
         return outputs
 
